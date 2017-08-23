@@ -1,7 +1,7 @@
 
-//#define LOG_NDEBUG 0
+#define LOG_LEVEL 0
 #define LOG_TAG "AMLVENC_API"
-//#include <utils/Log.h>
+#include <log.h>
 
 #include <stdio.h>
 #include <sys/ioctl.h>
@@ -124,7 +124,7 @@ AMVEnc_Status AMInitRateControlModule(amvenc_hw_t* hw_info)
         hw_info->rc_data = grc[hw_info->dev_id]->Initialize(&hw_info->init_para);
 
     if(!hw_info->rc_data){
-        //ALOGD("AMInitRateControlModule Fail, dev type:%d. fd:%d",hw_info->dev_id, hw_info->dev_fd);
+        ALOGD("AMInitRateControlModule Fail, dev type:%d. fd:%d",hw_info->dev_id, hw_info->dev_fd);
         return AMVENC_FAIL;
     }
     return AMVENC_SUCCESS;
@@ -205,7 +205,7 @@ AMVEnc_Status InitAMVEncode(amvenc_hw_t* hw_info, int force_mode)
     hw_info->dev_id = (ENC_DEV_TYPE) 0;
     //iret = ioctl(fd, AMVENC_AVC_IOC_GET_DEVINFO,&dev_info[0]);
     //if((iret<0)||(dev_info[0] == 0)){
-    //    //ALOGD("The old encoder driver, not support query the dev info. set as M8 type!");
+    //    ALOGD("The old encoder driver, not support query the dev info. set as M8 type!");
     //    hw_info->dev_id = M8_FAST;
     //}else if((strcmp(dev_info, (char *)AMVENC_DEVINFO_M8) == 0)
     //  ||(strcmp(dev_info, (char *)AMVENC_DEVINFO_G9) == 0)){
@@ -218,7 +218,7 @@ AMVEnc_Status InitAMVEncode(amvenc_hw_t* hw_info, int force_mode)
     //    hw_info->dev_id = NO_DEFINE;
     //}
 
-    ////ALOGI("hw_info->dev_id %d, %s", hw_info->dev_id, dev_info);
+    //ALOGI("hw_info->dev_id %d, %s", hw_info->dev_id, dev_info);
     //if (hw_info->dev_id == M8_FAST) {
     //    if((hw_info->init_para.enc_width >= 1280) && (hw_info->init_para.enc_height >= 720))
     //        hw_info->dev_id = M8_FAST;
@@ -242,11 +242,11 @@ AMVEnc_Status InitAMVEncode(amvenc_hw_t* hw_info, int force_mode)
     //    } else if(2 == value){
     //        hw_info->dev_id = M8;
     //    }
-    //    //ALOGI("hw.encoder.forcemode = %d, dev_id=%d. fd:%d", value, hw_info->dev_id, fd);
+    //    ALOGI("hw.encoder.forcemode = %d, dev_id=%d. fd:%d", value, hw_info->dev_id, fd);
     //}
 
     if((hw_info->dev_id<=NO_DEFINE)||(hw_info->dev_id>=MAX_DEV)){
-        //ALOGD("Not found available hw encoder device, fd:%d", fd);
+        ALOGD("Not found available hw encoder device, fd:%d", fd);
         close(fd);
         return AMVENC_FAIL;
     }
@@ -255,7 +255,7 @@ AMVEnc_Status InitAMVEncode(amvenc_hw_t* hw_info, int force_mode)
         hw_info->dev_data = gdev[hw_info->dev_id]->Initialize(fd, &hw_info->init_para);
 
     if(!hw_info->dev_data){
-        //ALOGD("InitAMVEncode Fail, dev type:%d. fd:%d",hw_info->dev_id, fd);
+        ALOGD("InitAMVEncode Fail, dev type:%d. fd:%d",hw_info->dev_id, fd);
         hw_info->dev_id = NO_DEFINE;
         close(fd);
         return AMVENC_FAIL;

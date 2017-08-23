@@ -1,7 +1,7 @@
 
-//#define LOG_NDEBUG 0
+#define LOG_LEVEL 0
 #define LOG_TAG "GXFASTENCLIB"
-//#include <utils/Log.h>
+#include <log.h>
 
 #include <math.h>
 #include <stdio.h>
@@ -268,7 +268,7 @@ static AMVEnc_Status start_ime(gx_fast_enc_drv_t* p, unsigned char* outptr,int* 
     ioctl(p->fd, FASTGX_AVC_IOC_NEW_CMD, &control_info[0]);
 
     if(encode_poll(p->fd, -1)<=0){
-        //ALOGE("start_ime: poll fail, fd:%d", p->fd);
+        ALOGE("start_ime: poll fail, fd:%d", p->fd);
         return AMVENC_TIMEOUT;
     }
 
@@ -284,10 +284,10 @@ static AMVEnc_Status start_ime(gx_fast_enc_drv_t* p, unsigned char* outptr,int* 
             p->i16_weight = result[3];
             Parser_DumpInfo(p);
             ret = AMVENC_PICTURE_READY;
-            //ALOGV("start_ime: done size: %d, fd:%d ", result[0], p->fd);
+            ALOGV("start_ime: done size: %d, fd:%d ", result[0], p->fd);
         }
     }else{
-        //ALOGE("start_ime: encode timeout, status:%d, fd:%d",status, p->fd);
+        ALOGE("start_ime: encode timeout, status:%d, fd:%d",status, p->fd);
         ret = AMVENC_TIMEOUT;
     }
     if(ret == AMVENC_PICTURE_READY){
@@ -296,7 +296,7 @@ static AMVEnc_Status start_ime(gx_fast_enc_drv_t* p, unsigned char* outptr,int* 
             gettimeofday(&p->end_test, NULL);
             total_time = p->end_test.tv_sec - p->start_test.tv_sec;
             total_time = total_time*1000000 + p->end_test.tv_usec -p->start_test.tv_usec;
-            //ALOGD("start_ime: need time: %d us, frame num:%d, fd:%d",total_time, p->total_encode_frame, p->fd);
+            ALOGD("start_ime: need time: %d us, frame num:%d, fd:%d",total_time, p->total_encode_frame, p->fd);
             p->total_encode_time +=total_time;
         }
     }
@@ -330,7 +330,7 @@ static AMVEnc_Status start_intra(gx_fast_enc_drv_t* p, unsigned char* outptr,int
     ioctl(p->fd, FASTGX_AVC_IOC_NEW_CMD, &control_info[0]);
 
     if(encode_poll(p->fd, -1)<=0){
-        //ALOGE("start_intra: poll fail, fd:%d", p->fd);
+        ALOGE("start_intra: poll fail, fd:%d", p->fd);
         return AMVENC_TIMEOUT;
     }
 
@@ -346,10 +346,10 @@ static AMVEnc_Status start_intra(gx_fast_enc_drv_t* p, unsigned char* outptr,int
             p->i16_weight = result[3];
             Parser_DumpInfo(p);
             ret = AMVENC_NEW_IDR;
-            //ALOGV("start_intra: done size: %d, fd:%d", result[0], p->fd);
+            ALOGV("start_intra: done size: %d, fd:%d", result[0], p->fd);
         }
     }else{
-        //ALOGE("start_intra: encode timeout, status:%d, fd:%d",status, p->fd);
+        ALOGE("start_intra: encode timeout, status:%d, fd:%d",status, p->fd);
         ret = AMVENC_TIMEOUT;
     }
 
@@ -359,7 +359,7 @@ static AMVEnc_Status start_intra(gx_fast_enc_drv_t* p, unsigned char* outptr,int
             gettimeofday(&p->end_test, NULL);
             total_time = (p->end_test.tv_sec - p->start_test.tv_sec)*1000000 + p->end_test.tv_usec -p->start_test.tv_usec;
             p->total_encode_time +=total_time;
-            //ALOGD("start_intra: need time: %d us, frame num:%d, fd:%d",total_time, p->total_encode_frame, p->fd);
+            ALOGD("start_intra: need time: %d us, frame num:%d, fd:%d",total_time, p->total_encode_frame, p->fd);
         }
     }
     return ret;
@@ -375,20 +375,20 @@ void* GxInitFastEncode(int fd, amvenc_initpara_t* init_para)
     int i = 0;
 
     if(!init_para){
-        //ALOGE("InitFastEncode init para error.  fd:%d", fd);
+        ALOGE("InitFastEncode init para error.  fd:%d", fd);
         return NULL;
     }
 
     p = (gx_fast_enc_drv_t*)calloc(1,sizeof(gx_fast_enc_drv_t));
     if(!p){
-        //ALOGE("InitFastEncode calloc faill. fd:%d", fd);
+        ALOGE("InitFastEncode calloc faill. fd:%d", fd);
         return NULL;
     }
 
     memset(p,0,sizeof(gx_fast_enc_drv_t));
     p->fd = fd;
     if(p->fd < 0){
-        //ALOGE("InitFastEncode open encode device fail, fd:%d", p->fd);
+        ALOGE("InitFastEncode open encode device fail, fd:%d", p->fd);
         free(p);
         return NULL;
     }
@@ -396,14 +396,14 @@ void* GxInitFastEncode(int fd, amvenc_initpara_t* init_para)
     memset(buff_info,0,sizeof(buff_info));
     ret = ioctl(p->fd, FASTGX_AVC_IOC_GET_BUFFINFO,&buff_info[0]);
     if((ret)||(buff_info[0]==0)){
-        //ALOGE("InitFastEncode -- old venc driver. no buffer information! fd:%d", p->fd);
+        ALOGE("InitFastEncode -- old venc driver. no buffer information! fd:%d", p->fd);
         free(p);
         return NULL;
     }
 
     p->mmap_buff.addr = (unsigned char*)mmap(0,buff_info[0], PROT_READ|PROT_WRITE , MAP_SHARED ,p->fd, 0);
     if (p->mmap_buff.addr == MAP_FAILED) {
-        //ALOGE("InitFastEncode mmap fail, fd:%d", p->fd);
+        ALOGE("InitFastEncode mmap fail, fd:%d", p->fd);
         free(p);
         return NULL;
     }
@@ -430,7 +430,7 @@ void* GxInitFastEncode(int fd, amvenc_initpara_t* init_para)
     buff_info[3] = p->enc_height;
     ret = ioctl(p->fd, FASTGX_AVC_IOC_CONFIG_INIT,&buff_info[0]);
     if(ret){
-        //ALOGE("InitFastEncode config init fai, fd:%dl", p->fd);
+        ALOGE("InitFastEncode config init fai, fd:%dl", p->fd);
         munmap(p->mmap_buff.addr ,p->mmap_buff.size);
         free(p);
         return NULL;
@@ -438,7 +438,7 @@ void* GxInitFastEncode(int fd, amvenc_initpara_t* init_para)
 
     p->mb_info = (mb_t *)malloc(p->src.mbsize * sizeof(mb_t));
     if(p->mb_info == NULL){
-        //ALOGE("ALLOC mb info memory failed. fd:%d",p->fd);
+        ALOGE("ALLOC mb info memory failed. fd:%d",p->fd);
         munmap(p->mmap_buff.addr ,p->mmap_buff.size);
         free(p);
         return NULL;
@@ -473,7 +473,7 @@ void* GxInitFastEncode(int fd, amvenc_initpara_t* init_para)
         //    sscanf(prop,"%d",&value);
         //}
         //if(value&0x8){
-        //    //ALOGD("Enable Debug Time Log, fd:%d", p->fd);
+        //    ALOGD("Enable Debug Time Log, fd:%d", p->fd);
         //    p->logtime = true;
         //}
 
@@ -483,7 +483,7 @@ void* GxInitFastEncode(int fd, amvenc_initpara_t* init_para)
         //    sscanf(prop,"%d",&value);
         //    if((value>=0)&&(value<51)){
         //        p->fix_qp = value;
-        //        //ALOGD("Enable fix qp mode: %d. fd:%d", p->fix_qp, p->fd);
+        //        ALOGD("Enable fix qp mode: %d. fd:%d", p->fix_qp, p->fd);
         //    }
         //}
         //value = -1;
@@ -492,7 +492,7 @@ void* GxInitFastEncode(int fd, amvenc_initpara_t* init_para)
         //    sscanf(prop,"%d",&value);
         //    if((value>=0)&&(value<=3)){
         //        p->nr_mode = value;
-        //        //ALOGD("Set Nr Mode as %d. fd:%d", p->nr_mode, p->fd);
+        //        ALOGD("Set Nr Mode as %d. fd:%d", p->nr_mode, p->fd);
         //    }
         //}
     }
@@ -523,7 +523,7 @@ AMVEnc_Status GxFastEncodeInitFrame(void *dev, ulong *yuv, AMVEncBufferType type
         gettimeofday(&p->end_test, NULL);
         total_time = (p->end_test.tv_sec - p->start_test.tv_sec)*1000000 + p->end_test.tv_usec -p->start_test.tv_usec;
         p->total_encode_time +=total_time;
-        //ALOGD("GxVEncodeInitFrame: need time: %d us, ret:%d, fd:%d",total_time,ret, p->fd);
+        ALOGD("GxVEncodeInitFrame: need time: %d us, ret:%d, fd:%d",total_time,ret, p->fd);
     }
     return ret;
 }
@@ -544,13 +544,13 @@ AMVEnc_Status GxFastEncodeSPS_PPS(void* dev, unsigned char* outptr,int* datalen)
     ioctl(p->fd, FASTGX_AVC_IOC_NEW_CMD, &control_info[0]);
 
     if(encode_poll(p->fd, -1)<=0){
-        //ALOGE("sps pps: poll fail, fd:%d", p->fd);
+        ALOGE("sps pps: poll fail, fd:%d", p->fd);
         return AMVENC_TIMEOUT;
     }
 
     ioctl(p->fd, FASTGX_AVC_IOC_GET_STAGE, &status);	
 
-    //ALOGV("FastEncodeSPS_PPS status:%d, fd:%d", status, p->fd);
+    ALOGV("FastEncodeSPS_PPS status:%d, fd:%d", status, p->fd);
     ret = AMVENC_FAIL;
     if(status == ENCODER_PICTURE_DONE){
         ioctl(p->fd, FASTGX_AVC_IOC_GET_OUTPUT_SIZE, &result[0]);
@@ -564,7 +564,7 @@ AMVEnc_Status GxFastEncodeSPS_PPS(void* dev, unsigned char* outptr,int* datalen)
             ret = AMVENC_SUCCESS;
         }
     }else{
-        //ALOGE("sps pps timeout, status:%d, fd:%d",status, p->fd);
+        ALOGE("sps pps timeout, status:%d, fd:%d",status, p->fd);
         ret = AMVENC_TIMEOUT;
     }
     return ret;
@@ -613,8 +613,8 @@ void GxUnInitFastEncode(void* dev)
         munmap(p->mmap_buff.addr ,p->mmap_buff.size);
 
     if(p->logtime)
-        //ALOGD("total_encode_frame: %d, total_encode_time: %d ms, fd:%d",
-        //            p->total_encode_frame, p->total_encode_time/1000, p->fd);
+        ALOGD("total_encode_frame: %d, total_encode_time: %d ms, fd:%d",
+                    p->total_encode_frame, p->total_encode_time/1000, p->fd);
     free(p);
     return;
 }

@@ -1,7 +1,7 @@
 
-//#define LOG_NDEBUG 0
+#define LOG_LEVEL 0
 #define LOG_TAG "AMLVENC"
-//#include <utils/Log.h>
+#include <log.h>
 
 #include <stdio.h>
 #include <sys/ioctl.h>
@@ -92,14 +92,14 @@ AMVEnc_Status DetermineFrameNum(AMVEncHandle *Handle, amvenc_info_t* info, uint3
             info->prevProcFrameNumOffset = 0;
         }else{
             if(force_IDR){  // todo: force_IDR only need one IDR or reset gop.
-                //ALOGV("force next frame to idr :%d, handle: %p.",force_IDR, Handle);
+                ALOGV("force next frame to idr :%d, handle: %p.",force_IDR, Handle);
                 info->nal_unit_type = AVC_NALTYPE_IDR;
                 info->slice_type = AVC_I_SLICE;
                 *frameNum = 0;
                 info->prevProcFrameNum = 0;
                 info->modTimeRef = modTime;
                 info->prevProcFrameNumOffset = 0;
-                //ALOGV("refresh parameter, handle: %p.", Handle);
+                ALOGV("refresh parameter, handle: %p.", Handle);
             }else{
                 info->nal_unit_type = AVC_NALTYPE_SLICE;
                 info->slice_type = AVC_P_SLICE;
@@ -107,7 +107,7 @@ AMVEnc_Status DetermineFrameNum(AMVEncHandle *Handle, amvenc_info_t* info, uint3
             }
         }
     }
-    //ALOGV("Get Nal Type: %s,  handle: %p.", (info->nal_unit_type ==AVC_NALTYPE_IDR)?"IDR":"SLICE", Handle);
+    ALOGV("Get Nal Type: %s,  handle: %p.", (info->nal_unit_type ==AVC_NALTYPE_IDR)?"IDR":"SLICE", Handle);
     return AMVENC_SUCCESS;
 }
 
@@ -216,7 +216,7 @@ AMVEnc_Status AML_HWEncInitialize(AMVEncHandle *Handle, AMVEncParams *encParam, 
         info->state = AMVEnc_Analyzing_Frame;
     Handle->object = (void *)info;
     *has_mix = (info->hw_info.dev_id == M8)?true:false;
-    //ALOGD("AML_HWEncInitialize success, handle: %p, fd:%d",Handle, info->hw_info.dev_fd);
+    ALOGD("AML_HWEncInitialize success, handle: %p, fd:%d",Handle, info->hw_info.dev_fd);
     return AMVENC_SUCCESS;
 exit:
     if(info){
@@ -224,7 +224,7 @@ exit:
         UnInitAMVEncode(&info->hw_info);
         free(info);
     }
-    //ALOGE("AML_HWEncInitialize Fail, error=%d. handle: %p",status,Handle);
+    ALOGE("AML_HWEncInitialize Fail, error=%d. handle: %p",status,Handle);
     return status;
 }
 
@@ -236,23 +236,23 @@ AMVEnc_Status AML_HWSetInput(AMVEncHandle *Handle, AMVEncFrameIO *input)
     ulong yuv[13];
 
     if (info == NULL){
-        //ALOGE("AML_HWSetInput Fail: UNINITIALIZED. handle: %p", Handle);
+        ALOGE("AML_HWSetInput Fail: UNINITIALIZED. handle: %p", Handle);
         return AMVENC_UNINITIALIZED;
     }
 
     if (info->state== AMVEnc_WaitingForBuffer){
         goto RECALL_INITFRAME;
     }else if (info->state != AMVEnc_Analyzing_Frame){
-        //ALOGE("AML_HWSetInput Wrong state: %d. handle: %p",info->state, Handle);
+        ALOGE("AML_HWSetInput Wrong state: %d. handle: %p",info->state, Handle);
         return AMVENC_FAIL;
     }
     if (input->pitch > 0xFFFF){
-        //ALOGE("AML_HWSetInput Fail: NOT_SUPPORTED. handle: %p", Handle);
+        ALOGE("AML_HWSetInput Fail: NOT_SUPPORTED. handle: %p", Handle);
         return AMVENC_NOT_SUPPORTED; // we use 2-bytes for pitch
     }
 
     if (AMVENC_SUCCESS != DetermineFrameNum(Handle, info, input->coding_timestamp, &frameNum, (uint32)input->frame_rate, (input->op_flag & AMVEncFrameIO_FORCE_IDR_FLAG))){
-        //ALOGD("AML_HWSetInput SKIPPED_PICTURE, handle: %p", Handle);
+        ALOGD("AML_HWSetInput SKIPPED_PICTURE, handle: %p", Handle);
         return AMVENC_SKIPPED_PICTURE; /* not time to encode, thus skipping */
     }
 
@@ -295,7 +295,7 @@ RECALL_INITFRAME:
     }else if (status == AMVENC_PICTURE_READY){
         info->state = AMVEnc_WaitingForBuffer; // Input accepted but can't continue
     }
-    //ALOGV("AML_HWSetInput status: %d. handle: %p",status,Handle);
+    ALOGV("AML_HWSetInput status: %d. handle: %p",status,Handle);
     return status;
 }
 
@@ -306,11 +306,11 @@ AMVEnc_Status AML_HWEncNAL(AMVEncHandle *Handle, unsigned char *buffer, unsigned
     int datalen = 0;
 
     if (info == NULL){
-        //ALOGE("AML_HWEncNAL Fail: UNINITIALIZED. handle: %p", Handle);
+        ALOGE("AML_HWEncNAL Fail: UNINITIALIZED. handle: %p", Handle);
         return AMVENC_UNINITIALIZED;
     }
 
-    //ALOGV("AML_HWEncNAL state: %d. handle: %p",info->state, Handle);
+    ALOGV("AML_HWEncNAL state: %d. handle: %p",info->state, Handle);
     switch (info->state){
         case AMVEnc_Initializing:
             return AMVENC_ALREADY_INITIALIZED;
@@ -318,7 +318,7 @@ AMVEnc_Status AML_HWEncNAL(AMVEncHandle *Handle, unsigned char *buffer, unsigned
             /* encode SPS */
             ret = AMVEncodeSPS_PPS(&info->hw_info, buffer,&datalen);
             if(ret!=AMVENC_SUCCESS){
-                //ALOGV("AML_HWEncNAL state: %d, err=%d, handle: %p",info->state,ret, Handle);
+                ALOGV("AML_HWEncNAL state: %d, err=%d, handle: %p",info->state,ret, Handle);
                 return ret;
             }
             if (info->outOfBandParamSet) 
@@ -332,14 +332,14 @@ AMVEnc_Status AML_HWEncNAL(AMVEncHandle *Handle, unsigned char *buffer, unsigned
         case AMVEnc_Encoding_Frame:
             ret = AMVEncodeSlice(&info->hw_info,buffer,&datalen, false);
             if (ret == AMVENC_TIMEOUT){
-                //ALOGD("AML_HWEncNAL state: %d, err=%d. handle: %p",info->state,ret, Handle);
+                ALOGD("AML_HWEncNAL state: %d, err=%d. handle: %p",info->state,ret, Handle);
                 //ret = AMVENC_SKIPPED_PICTURE; //need debug
                 info->state = AMVEnc_Analyzing_Frame;  // walk around to fix the poll timeout
                 return ret;
             }
 
             if ((ret != AMVENC_PICTURE_READY)&&(ret != AMVENC_SUCCESS)&&(ret != AMVENC_NEW_IDR)){
-                //ALOGV("AML_HWEncNAL state: %d, err=%d. handle: %p",info->state,ret, Handle);
+                ALOGV("AML_HWEncNAL state: %d, err=%d. handle: %p",info->state,ret, Handle);
                 return ret;
             }
 
@@ -356,10 +356,10 @@ AMVEnc_Status AML_HWEncNAL(AMVEncHandle *Handle, unsigned char *buffer, unsigned
                 }
                 /*we need to reencode the frame**/
                 if (ret == AMVENC_REENCODE_PICTURE) {
-                    //ALOGE("AML_HWEncNAL re-encode");
+                    ALOGE("AML_HWEncNAL re-encode", 0);
                     ret = AMVEncodeSlice(&info->hw_info,buffer,&datalen, true);
                     if ((ret != AMVENC_PICTURE_READY)&&(ret != AMVENC_SUCCESS)&&(ret != AMVENC_NEW_IDR)){
-                        //ALOGE("AML_HWEncNAL state: %d, err=%d. handle: %p",info->state,ret, Handle);
+                        ALOGE("AML_HWEncNAL state: %d, err=%d. handle: %p",info->state,ret, Handle);
                         return ret;
                     }
                     info->nal_unit_type = (ret == AMVENC_NEW_IDR)?AVC_NALTYPE_IDR:info->nal_unit_type;
@@ -373,11 +373,11 @@ AMVEnc_Status AML_HWEncNAL(AMVEncHandle *Handle, unsigned char *buffer, unsigned
                             return ret;
                         }
                     }else{
-                        //ALOGE("re-encode failed:%d. handle: %p",ret, Handle);
+                        ALOGE("re-encode failed:%d. handle: %p",ret, Handle);
                     }
                 }
                 if(AMVEncodeCommit(&info->hw_info,(info->nal_unit_type == AVC_NALTYPE_IDR))!=AMVENC_SUCCESS){
-                    //ALOGE("Encode Commit  failed:%d. handle: %p",ret, Handle);
+                    ALOGE("Encode Commit  failed:%d. handle: %p",ret, Handle);
                 }
                 info->prevCodedFrameNum = info->coding_order;
                 info->state = AMVEnc_Analyzing_Frame;
@@ -390,7 +390,7 @@ AMVEnc_Status AML_HWEncNAL(AMVEncHandle *Handle, unsigned char *buffer, unsigned
         default:
             ret = AMVENC_WRONG_STATE;
     }
-    //ALOGV("AML_HWEncNAL next state: %d, ret=%d. handle: %p",info->state, ret, Handle);
+    ALOGV("AML_HWEncNAL next state: %d, ret=%d. handle: %p",info->state, ret, Handle);
     return ret;
 }
 
@@ -403,7 +403,7 @@ AMVEnc_Status AML_HWEncRelease(AMVEncHandle *Handle)
         free(info);
     }
     Handle->object = NULL;
-    //ALOGV("AML_HWEncRelease Done, handle: %p", Handle);
+    ALOGV("AML_HWEncRelease Done, handle: %p", Handle);
     return AMVENC_SUCCESS;
 }
 

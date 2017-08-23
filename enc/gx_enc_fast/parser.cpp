@@ -1,6 +1,6 @@
-//#define LOG_NDEBUG 0
+#define LOG_LEVEL 0
 #define LOG_TAG "GXVENC_PARSER"
-//#include <utils/Log.h>
+#include <log.h>
 
 #include "gxvenclib_fast.h"
 #include "enc_define.h"
@@ -107,7 +107,7 @@ int Parser_DumpInfo(gx_fast_enc_drv_t* p)
             info->mbx = get_mb_x(cur_mb);
             info->mby = get_mb_y(cur_mb);
             if((x != info->mbx)||(y != info->mby)) {
-                //ALOGE("parser mb poistion error: actual: %dx%d, info:%dx%d",x,y,info->mbx,info->mby);
+                ALOGE("parser mb poistion error: actual: %dx%d, info:%dx%d",x,y,info->mbx,info->mby);
                 return -1;
             }
             info->mb_type = get_mb_type(cur_mb);
@@ -167,19 +167,19 @@ int Parser_DumpInfo(gx_fast_enc_drv_t* p)
                 if(info->inter.sad < info->intra.sad) {
                     get_mb_mv_P16x16(cur_mb, info->inter.mv);
                     info->final_sad = info->inter.sad - p->me_weight;
-                    //ALOGV("frame:%d, parser mb (%dx%d) type %d warning--set as inter 16x16, cur_mb:0x%x, inter sad:%d, intra sad:%d", 
-                    //    p->total_encode_frame+1, x, y, info->mb_type, (ulong)(cur_mb-p->dump_buf.addr), info->inter.sad, info->intra.sad);
+                    ALOGV("frame:%d, parser mb (%dx%d) type %d warning--set as inter 16x16, cur_mb:0x%x, inter sad:%d, intra sad:%d", 
+                        p->total_encode_frame+1, x, y, info->mb_type, (ulong)(cur_mb-p->dump_buf.addr), info->inter.sad, info->intra.sad);
                     info->mb_type = HENC_MB_Type_P16x16;
                 } else {
                     info->intra.CPred = get_mb_CPred(cur_mb);
                     info->intra.LPred[0] = get_mb_LPred_I16(cur_mb);
                     info->final_sad = info->intra.sad - p->i16_weight;
-                    //ALOGV("frame:%d, parser mb (%dx%d) type %d warning--set as I16(mode %d), cur_mb:0x%x, inter sad:%d, intra sad:%d", 
-                    //    p->total_encode_frame+1, x, y, info->mb_type, info->intra.LPred[0], (ulong)(cur_mb-p->dump_buf.addr), info->inter.sad, info->intra.sad);
+                    ALOGV("frame:%d, parser mb (%dx%d) type %d warning--set as I16(mode %d), cur_mb:0x%x, inter sad:%d, intra sad:%d", 
+                        p->total_encode_frame+1, x, y, info->mb_type, info->intra.LPred[0], (ulong)(cur_mb-p->dump_buf.addr), info->inter.sad, info->intra.sad);
 	             info->mb_type == HENC_MB_Type_I16MB;
                 }
             } else {
-                //ALOGE("parser mb (%dx%d) type %d error, cur_mb:0x%x", x, y, info->mb_type, (ulong)(cur_mb-p->dump_buf.addr));
+                ALOGE("parser mb (%dx%d) type %d error, cur_mb:0x%x", x, y, info->mb_type, (ulong)(cur_mb-p->dump_buf.addr));
                 return -1;
             }
             if (info->final_sad <0)

@@ -1,6 +1,6 @@
-//#define LOG_NDEBUG 0
+#define LOG_LEVEL 0
 #define LOG_TAG "FASTGX_RC"
-//#include <utils/Log.h>
+#include <log.h>
 
 #include <math.h>
 #include <stdio.h>
@@ -96,7 +96,7 @@ static void updateRC_PostProc(GxFastEncRateControl *rateCtrl, bool IDR)
     int pframe_max_qp = rateCtrl->max_p_qp;
     calculated_Qp = Qstep2QP(rateCtrl->actual_Qstep);
     Qp_diff = calculated_Qp - rateCtrl->Qc;
-    //ALOGV("Calculate qp:%d,rateCtrl->actual_Qstep:%f,diff:%d",calculated_Qp,rateCtrl->actual_Qstep,Qp_diff);
+    ALOGV("Calculate qp:%d,rateCtrl->actual_Qstep:%f,diff:%d",calculated_Qp,rateCtrl->actual_Qstep,Qp_diff);
     if(rateCtrl->max_inc_qp_step>0){
         if(Qp_diff > rateCtrl->max_inc_qp_step){
             rateCtrl->Qc += rateCtrl->max_inc_qp_step;
@@ -181,7 +181,7 @@ static void updateRateControl(GxFastEncRateControl *rateCtrl, bool IDR)
     /**scene detact**/
     rateCtrl->skip_next_frame = 0;
     median_quant = RC_MIN_QUANT + (rateCtrl->max_idr_qp - RC_MIN_QUANT) / 2;
-    //ALOGV("rateCtrl->last_IDR_bits:%d,last_pframe_bits:%d,current:%d,QP:%d",rateCtrl->last_IDR_bits,rateCtrl->last_pframe_bits,rateCtrl->Rc,rateCtrl->Qc);
+    ALOGV("rateCtrl->last_IDR_bits:%d,last_pframe_bits:%d,current:%d,QP:%d",rateCtrl->last_IDR_bits,rateCtrl->last_pframe_bits,rateCtrl->Rc,rateCtrl->Qc);
     if(rateCtrl->refresh == true){
         float idr_ratio = 0.0;
         int old_bitsPerFrame = rateCtrl->bitsPerFrame;
@@ -195,7 +195,7 @@ static void updateRateControl(GxFastEncRateControl *rateCtrl, bool IDR)
     }
 
     /** calculate average rate**/
-    //ALOGV("bitRate:%d,frame_rate:%f",rateCtrl->bitRate,rateCtrl->frame_rate);
+    ALOGV("bitRate:%d,frame_rate:%f",rateCtrl->bitRate,rateCtrl->frame_rate);
     rate = rateCtrl->average_rate;
     delta = rateCtrl->average_delta;
     decay = 1 - delta;
@@ -222,8 +222,8 @@ static void updateRateControl(GxFastEncRateControl *rateCtrl, bool IDR)
     encode_frames = rateCtrl->encoded_frames;
     rateCtrl->buffer_fullness += rateCtrl->Rc - rateCtrl->bitsPerFrame;
     threshold = rateCtrl->bitsPerFrame * encode_frames * 0.05;
-    //ALOGV("frame:%d :rateCtrl->bitsPerFrame:%d,current_bits:%d",encode_frames,rateCtrl->bitsPerFrame,rateCtrl->Rc);
-    //ALOGV("bufferer_fullness:%lld,threshold:%lld",rateCtrl->buffer_fullness,threshold);
+    ALOGV("frame:%d :rateCtrl->bitsPerFrame:%d,current_bits:%d",encode_frames,rateCtrl->bitsPerFrame,rateCtrl->Rc);
+    ALOGV("bufferer_fullness:%lld,threshold:%lld",rateCtrl->buffer_fullness,threshold);
 
     /**calculate current reaction rate**/
     rate = rateCtrl->reaction_rate;
@@ -233,7 +233,7 @@ static void updateRateControl(GxFastEncRateControl *rateCtrl, bool IDR)
     rateCtrl->reaction_rate = rate;
     median_quant = RC_MIN_QUANT + (rateCtrl->max_idr_qp - RC_MIN_QUANT) / 2;
 
-    //ALOGV("rate:%f,current_target:%f",rate,current_target);
+    ALOGV("rate:%f,current_target:%f",rate,current_target);
     /**reduce quantizer when the reaction rate is low**/
     if(rate < current_target && rateCtrl->buffer_fullness < threshold){
     //if(rate < current_target){
@@ -275,7 +275,7 @@ AMVEnc_Status GxFastRCUpdateFrame(void *dev, void *rc, bool IDR, int* skip_num, 
             *skip_num = rateCtrl->skip_next_frame;
         }
     }
-    //ALOGV("Qp:%d",p->quant);
+    ALOGV("Qp:%d",p->quant);
     return status;
 }
 
@@ -292,7 +292,7 @@ AMVEnc_Status GxFastRCInitFrameQP(void *dev, void *rc,bool IDR,int bitrate, floa
             p->quant = rateCtrl->Qc;
             if(rateCtrl->frame_rate != frame_rate || rateCtrl->bitRate != bitrate || rateCtrl->force_IDR){
                 rateCtrl->refresh = true;
-                //ALOGD("we got new config, frame_rate:%f, bitrate:%d, force_IDR:%d",frame_rate, bitrate, rateCtrl->force_IDR);
+                ALOGD("we got new config, frame_rate:%f, bitrate:%d, force_IDR:%d",frame_rate, bitrate, rateCtrl->force_IDR);
             }else{
                 rateCtrl->refresh = false;
             }
@@ -388,7 +388,7 @@ void* GxFastInitRateControlModule(amvenc_initpara_t* init_para)
         rateCtrl->max_dec_qp_step = 3;
     //}
 
-    //ALOGV("Max I frame qp: %d, Max P frame qp, %d, MaxInc qp step:%d, dec step:%d",rateCtrl->max_idr_qp,rateCtrl->max_p_qp,rateCtrl->max_inc_qp_step,rateCtrl->max_dec_qp_step);
+    ALOGV("Max I frame qp: %d, Max P frame qp, %d, MaxInc qp step:%d, dec step:%d",rateCtrl->max_idr_qp,rateCtrl->max_p_qp,rateCtrl->max_inc_qp_step,rateCtrl->max_dec_qp_step);
     if (rateCtrl->rcEnable == true){
         rateCtrl->bitsPerFrame = (int32)(rateCtrl->bitRate / rateCtrl->frame_rate);
         rateCtrl->skip_next_frame = 0; /* must be initialized */
