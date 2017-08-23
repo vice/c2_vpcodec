@@ -1,3 +1,9 @@
+Modified mix of propietary libraries provided by the manufacturer for encoding
+using Amlogic Video Engine hardware. 
+
+AVE hardware encoding must be mainlined into Linux kernel as a V4L2 driver.
+
+
 Amlogic Video Engine (AVE)
 ==========================
 
