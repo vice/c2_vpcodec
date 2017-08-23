@@ -1,0 +1,7 @@
+Amlogic Video Engine (AVE)
+==========================
+
+Supported pixel formats
+-----------------------
+ * NV12
+ * NV21
