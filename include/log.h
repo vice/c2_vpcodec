@@ -1,5 +1,5 @@
 // TODO: Define log levels
-#if defined LOG_LEVEL && LOG_LEVEL > 0
+#if LOG_LEVEL
 #  define ALOGV(fmt, ...) fprintf(stderr, LOG_TAG " Verbose: " fmt "\n", __VA_ARGS__)
 #  define ALOGD(fmt, ...) fprintf(stderr, LOG_TAG " Debug: " fmt "\n", __VA_ARGS__)
 #  define ALOGI(fmt, ...) fprintf(stderr, LOG_TAG " Info: " fmt "\n", __VA_ARGS__)
