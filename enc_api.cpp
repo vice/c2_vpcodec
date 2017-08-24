@@ -1,5 +1,5 @@
 
-#define LOG_LEVEL 0
+#define LOG_FLAGS 0
 #define LOG_TAG "AMLVENC_API"
 #include <log.h>
 

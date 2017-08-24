@@ -1,4 +1,4 @@
-#define LOG_LEVEL 0
+#define LOG_FLAGS 0
 #define LOG_TAG "FASTGX_RC"
 #include <log.h>
 
