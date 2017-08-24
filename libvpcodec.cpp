@@ -1,8 +1,9 @@
+#define LOG_LEVEL 0
+#define LOG_TAG "libvpcodec"
+#include <log.h>
 #include "vpcodec_1_0.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <log.h>
-#define LOG_TAG "libvpcodec"
 
 #include <AML_HWEncoder.h>
 #include <enc_define.h>
