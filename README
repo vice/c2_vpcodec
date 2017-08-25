@@ -9,5 +9,8 @@ Amlogic Video Engine (AVE)
 
 Supported pixel formats
 -----------------------
+
+YUV420
+ * I420
  * NV12
  * NV21

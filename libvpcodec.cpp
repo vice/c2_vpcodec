@@ -138,10 +138,10 @@ int vl_video_encoder_encode(vl_codec_handle_t codec_handle, vl_frame_type_t fram
         videoInput.bitrate = handle->mEncParams.bitrate;
         videoInput.frame_rate = handle->mEncParams.frame_rate / 1000;
         videoInput.coding_timestamp = handle->mNumInputFrames * 1000 / videoInput.frame_rate;  // in ms
-        videoInput.fmt = AMVENC_NV12;
+        videoInput.fmt = AMVENC_YUV420;
         videoInput.YCbCr[0] = (unsigned long)in;
         videoInput.YCbCr[1] = (unsigned long)(videoInput.YCbCr[0] + videoInput.height * videoInput.pitch);
-        videoInput.YCbCr[2] = 0;
+        videoInput.YCbCr[2] = (unsigned long)(videoInput.YCbCr[0] + videoInput.height * videoInput.pitch * 5 / 4 );
         videoInput.canvas = 0xffffffff;
         videoInput.type = VMALLOC_BUFFER;
         videoInput.disp_order = handle->mNumInputFrames;
