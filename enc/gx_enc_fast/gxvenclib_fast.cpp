@@ -430,7 +430,7 @@ void* GxInitFastEncode(int fd, amvenc_initpara_t* init_para)
     buff_info[3] = p->enc_height;
     ret = ioctl(p->fd, FASTGX_AVC_IOC_CONFIG_INIT,&buff_info[0]);
     if(ret){
-        ALOGE("InitFastEncode config init fai, fd:%dl", p->fd);
+        ALOGE("InitFastEncode config init fail, fd:%d", p->fd);
         munmap(p->mmap_buff.addr ,p->mmap_buff.size);
         free(p);
         return NULL;
