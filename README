@@ -4,8 +4,15 @@ using Amlogic Video Engine hardware.
 AVE hardware encoding must be mainlined into Linux kernel as a V4L2 driver.
 
 
-Amlogic Video Engine (AVE)
-==========================
+Amlogic Video Engine (AVE) Encoding
+===================================
+
+Maximum resolution
+------------------
+Encoder width and heigh resolution limitation: HD definition (1920×1080).
+The encoder is limited by width and heigh not the amount of pixels or memory
+used by each frame.
+
 
 Supported pixel formats
 -----------------------
