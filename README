@@ -17,7 +17,7 @@ used by each frame.
 Supported pixel formats
 -----------------------
 
-YUV420
+YUV 4:2:0
  * I420
  * NV12
  * NV21
